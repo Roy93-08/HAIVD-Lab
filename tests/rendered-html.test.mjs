@@ -30,9 +30,9 @@ test("server-renders the public research lab homepage", async () => {
 
   const html = await response.text();
   assert.match(html, /<html lang="en">/i);
-  assert.match(html, /<title>Human Intelligence Lab<\/title>/i);
+  assert.match(html, /<title>HAIDE Lab<\/title>/i);
   assert.match(html, /alt="About the lab"/);
-  assert.match(html, /We design how people live, learn, and create with intelligent systems/);
+  assert.match(html, /Designing and engineering better human-agent relationships/);
   assert.match(html, />NEWS</);
   assert.match(html, />PROJECTS</);
   assert.match(html, /Human–AI Co-Creation Tools/);
@@ -41,10 +41,12 @@ test("server-renders the public research lab homepage", async () => {
 });
 
 test("includes the editable content system, administrator protection, and storage bindings", async () => {
-  const [admin, contentRoute, uploadRoute, adminAuth, hosting, schema] = await Promise.all([
+  const [admin, contentRoute, uploadRoute, protectedContentRoute, protectedUploadRoute, adminAuth, hosting, schema] = await Promise.all([
     readFile(new URL("../app/admin/AdminClient.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/content/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/upload/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/admin/api/content/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/admin/api/upload/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../lib/admin-auth.ts", import.meta.url), "utf8"),
     readFile(new URL("../.openai/hosting.json", import.meta.url), "utf8"),
     readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
@@ -58,6 +60,10 @@ test("includes the editable content system, administrator protection, and storag
   assert.match(contentRoute, /export async function PUT/);
   assert.match(contentRoute, /isAdminRequest/);
   assert.match(uploadRoute, /isAdminRequest/);
+  assert.match(admin, /\/admin\/api\/content/);
+  assert.match(admin, /\/admin\/api\/upload/);
+  assert.match(protectedContentRoute, /export \{ GET, PUT \}/);
+  assert.match(protectedUploadRoute, /export \{ POST \}/);
   assert.match(adminAuth, /ADMIN_EMAIL/);
   assert.match(adminAuth, /cf-access-jwt-assertion/);
   assert.match(adminAuth, /cf-access-authenticated-user-email/);

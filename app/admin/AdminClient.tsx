@@ -17,12 +17,12 @@ function upsertItem<T extends { id: string }>(items: T[], item: T, position: "st
 }
 
 async function publishContent(content: SiteContent) {
-  return fetch("/api/content", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(content) });
+  return fetch("/admin/api/content", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(content) });
 }
 
 async function uploadImage(file: File) {
   const data = new FormData(); data.append("file", file);
-  const response = await fetch("/api/upload", { method: "POST", body: data });
+  const response = await fetch("/admin/api/upload", { method: "POST", body: data });
   const result = await response.json();
   if (!response.ok) throw new Error(result.error ?? "图片上传失败");
   return result.url as string;
@@ -51,7 +51,7 @@ export default function AdminClient({ userName }: { userName: string }) {
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
   const [notice, setNotice] = useState("");
 
-  useEffect(() => { fetch("/api/content").then((r) => r.json()).then(setContent).finally(() => setLoading(false)); }, []);
+  useEffect(() => { fetch("/admin/api/content").then((r) => r.json()).then(setContent).finally(() => setLoading(false)); }, []);
   const patchLab = (key: keyof SiteContent["lab"], value: string) => setContent((c) => ({ ...c, lab: { ...c.lab, [key]: value } }));
   const patchContact = (key: keyof SiteContent["contact"], value: string) => setContent((c) => ({ ...c, contact: { ...c.contact, [key]: value } }));
   const patchNews = (id: string, patch: Partial<NewsItem>) => { setItemNotice((value) => value?.id === id ? null : value); setContent((c) => ({ ...c, news: c.news.map((item) => item.id === id ? { ...item, ...patch } : item) })); };
@@ -60,7 +60,7 @@ export default function AdminClient({ userName }: { userName: string }) {
   const saveItem = async (type: "news" | "project", id: string) => {
     setItemSaving(id); setItemNotice({ id, state: "saving", message: "正在保存…" }); setNotice("");
     try {
-      const currentResponse = await fetch("/api/content");
+      const currentResponse = await fetch("/admin/api/content");
       if (!currentResponse.ok) throw new Error();
       const current = await currentResponse.json() as SiteContent;
       const next = type === "news"
@@ -80,7 +80,7 @@ export default function AdminClient({ userName }: { userName: string }) {
     if (!deleteTarget) return;
     setItemSaving(deleteTarget.id); setNotice("");
     try {
-      const currentResponse = await fetch("/api/content");
+      const currentResponse = await fetch("/admin/api/content");
       if (!currentResponse.ok) throw new Error();
       const current = await currentResponse.json() as SiteContent;
       const next = deleteTarget.type === "news"
