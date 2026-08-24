@@ -34,14 +34,14 @@ export function sortNewsByDate(news: NewsItem[]): NewsItem[] {
 
 export const defaultContent: SiteContent = {
   lab: {
-    name: "Human Intelligence Lab",
-    logoText: "HI",
-    logoImage: "/logo-mark.png",
-    kicker: "HUMAN–AI INTERACTION · DESIGN",
-    headline: "We design how people live, learn, and create with intelligent systems.",
-    description: "We are an interdisciplinary research group working at the intersection of human–computer interaction, artificial intelligence, and design. Through research, prototyping, and real-world studies, we explore human-centered intelligent technologies.",
-    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1400&q=85",
-    imageFit: "contain",
+    name: "HAIDE Lab",
+    logoText: "HAIDE",
+    logoImage: "/api/media/2aa7a351-75a7-405b-b621-5f6ae2ae1ace.png",
+    kicker: "HUMAN–AI INTERACTION · DESIGN ENGINEERING",
+    headline: "Designing and engineering better human-agent relationships",
+    description: "The Human–Computer Interaction and Design Engineering Laboratory is led by Assistant Professor Mu Tong at South China University of Technology. We conduct interdisciplinary research on relationships and mediating mechanisms between humans, intelligent agents, and robots, focusing on the design, development, and application of interactive technologies.",
+    image: "/api/media/edf10d23-2467-4df0-ae7e-1d1813f7f891.png",
+    imageFit: "cover",
     imagePosition: "center",
   },
   news: [
@@ -59,7 +59,7 @@ export const defaultContent: SiteContent = {
   contact: {
     title: "Join us in shaping intelligent futures worth living in.",
     body: "We welcome students, researchers, and collaborators interested in human–computer interaction, artificial intelligence, and design. Please briefly introduce your background, research interests, and the work you hope to pursue.",
-    email: "hello@humanintelligence.lab",
+    email: "tongmu@scut.edu.cn",
   },
 };
 

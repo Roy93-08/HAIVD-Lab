@@ -19,8 +19,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const localHost = host.startsWith("localhost") || host.startsWith("127.0.0.1");
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (localHost ? "http" : "https");
   const image = `${protocol}://${host}/og.png`;
-  const title = "Human Intelligence Lab";
-  const description = "An interdisciplinary research lab at the intersection of human–computer interaction, artificial intelligence, and design.";
+  const title = "HAIDE Lab";
+  const description = "Human–Computer Interaction and Design Engineering Laboratory at South China University of Technology.";
   return {
     title,
     description,
