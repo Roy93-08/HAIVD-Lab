@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { sortNewsByDate, type NewsItem, type ProjectItem, type SiteContent } from "../lib/content";
+import { sortNewsByDate, type NewsItem, type ProjectContentBlock, type ProjectItem, type SiteContent } from "../lib/content";
 
 type ModalState = { type: "news"; item: NewsItem } | { type: "project"; item: ProjectItem } | null;
 
@@ -11,6 +11,19 @@ function formatDate(date: string) {
 
 function statusLabel(status: ProjectItem["status"]) {
   return status === "已完成" ? "COMPLETED" : "ONGOING";
+}
+
+function projectContentBlocks(project: ProjectItem): ProjectContentBlock[] {
+  if (project.contentBlocks?.length) return project.contentBlocks;
+  return project.body ? [{ id: `${project.id}-legacy-body`, type: "text", text: project.body }] : [];
+}
+
+function ProjectContent({ project }: { project: ProjectItem }) {
+  return <div className="project-content">{projectContentBlocks(project).map((block) => block.type === "image" ? (
+    block.url && <figure className="project-content-image" key={block.id}><img src={block.url} alt={block.alt || block.caption || "Project image"} />{block.caption && <figcaption>{block.caption}</figcaption>}</figure>
+  ) : (
+    block.text && <p key={block.id}>{block.text}</p>
+  ))}</div>;
 }
 
 export default function LabSite({ initialContent }: { initialContent: SiteContent }) {
@@ -57,7 +70,7 @@ export default function LabSite({ initialContent }: { initialContent: SiteConten
         <div className="project-grid">{content.projects.map((project) => (
           <button className="project-card" key={project.id} type="button" onClick={() => setModal({ type: "project", item: project })}>
             <img src={project.image} alt="" />
-            <div className="project-card-body"><div className="card-title-row"><h3>{project.title}</h3><span className={`status ${project.status === "已完成" ? "complete" : ""}`}>{statusLabel(project.status)}</span></div><p>{project.summary}</p><span className="people-line">{project.people}</span></div>
+            <div className="project-card-body"><h3>{project.title}</h3><span className={`status project-card-status ${project.status === "已完成" ? "complete" : ""}`}>{statusLabel(project.status)}</span><p>{project.summary}</p><span className="people-line">{project.people}</span></div>
           </button>
         ))}</div>
       </section>
@@ -72,7 +85,7 @@ export default function LabSite({ initialContent }: { initialContent: SiteConten
             <div className="modal-meta"><span>{formatDate(modal.item.date)}</span><span className={`status ${modal.item.status === "已完成" ? "complete" : ""}`}>{statusLabel(modal.item.status)}</span></div>
             <h2 id="modal-title">{modal.item.title}</h2>
             <div className="person-block"><img src={modal.item.profileImage} alt="Project researcher" /><div><small>People</small><p>{modal.item.people}</p></div></div>
-            <div className="modal-body">{modal.item.body}</div>
+            <ProjectContent project={modal.item} />
             {modal.item.paperLinks.length > 0 && <div className="research-links"><p>PUBLICATIONS</p>{modal.item.paperLinks.map((link) => <a key={link.url} href={link.url} target="_blank" rel="noreferrer">{link.label} <span>↗</span></a>)}</div>}
           </>}
         </article>

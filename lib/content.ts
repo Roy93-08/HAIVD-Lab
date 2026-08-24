@@ -8,6 +8,10 @@ export type NewsItem = {
 
 export type PaperLink = { label: string; url: string };
 
+export type ProjectContentBlock =
+  | { id: string; type: "text"; text: string }
+  | { id: string; type: "image"; url: string; caption: string; alt: string };
+
 export type ProjectItem = {
   id: string;
   title: string;
@@ -15,6 +19,7 @@ export type ProjectItem = {
   image: string;
   summary: string;
   body: string;
+  contentBlocks?: ProjectContentBlock[];
   people: string;
   profileImage: string;
   status: "进行中" | "已完成";
@@ -25,7 +30,7 @@ export type SiteContent = {
   lab: { name: string; logoText: string; logoImage?: string; kicker: string; headline: string; description: string; image: string; imageFit?: "contain" | "cover"; imagePosition?: "center" | "top" | "bottom" | "left" | "right" };
   news: NewsItem[];
   projects: ProjectItem[];
-  contact: { title: string; body: string; email: string };
+  contact: { title: string; body: string; name?: string; email: string };
 };
 
 export function sortNewsByDate(news: NewsItem[]): NewsItem[] {
@@ -59,6 +64,7 @@ export const defaultContent: SiteContent = {
   contact: {
     title: "Join us in shaping intelligent futures worth living in.",
     body: "We welcome students, researchers, and collaborators interested in human–computer interaction, artificial intelligence, and design. Please briefly introduce your background, research interests, and the work you hope to pursue.",
+    name: "Dr. Tong Mu",
     email: "tongmu@scut.edu.cn",
   },
 };
