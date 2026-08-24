@@ -18,7 +18,7 @@ const localBindingConfig = {
     { pattern: "www.haidelab.org", custom_domain: true },
   ],
   vars: {
-    ADMIN_EMAIL: "108913383@qq.com",
+    ADMIN_EMAIL: "tongmu@scut.edu.cn",
   },
   d1_databases: d1
     ? [
