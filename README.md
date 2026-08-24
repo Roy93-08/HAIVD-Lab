@@ -38,6 +38,16 @@ npm test
 
 This builds the application and runs the automated rendering and content-system checks.
 
+## Administrator Access
+
+The public site and content management system share one domain. The administration interface is available at `/admin` and is intended to sit behind Cloudflare Access.
+
+- Set `ADMIN_EMAIL` in the Cloudflare Worker environment; do not commit administrator credentials.
+- Create Cloudflare Access policies for `/admin*`, `/api/upload`, and `/api/content`, allowing only the administrator email.
+- Keep `/api/media/*` public so uploaded images remain visible on the website.
+- Disable the public `workers.dev` route, or protect it with the same Access policy, so it cannot bypass the custom-domain policy.
+- Local administration is allowed only on a localhost address while Vite is running in development mode.
+
 ## Technology
 
 - React and vinext

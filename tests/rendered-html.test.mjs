@@ -40,10 +40,12 @@ test("server-renders the public research lab homepage", async () => {
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
 });
 
-test("includes the editable content system and storage bindings", async () => {
-  const [admin, contentRoute, hosting, schema] = await Promise.all([
+test("includes the editable content system, administrator protection, and storage bindings", async () => {
+  const [admin, contentRoute, uploadRoute, adminAuth, hosting, schema] = await Promise.all([
     readFile(new URL("../app/admin/AdminClient.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/api/content/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/upload/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/admin-auth.ts", import.meta.url), "utf8"),
     readFile(new URL("../.openai/hosting.json", import.meta.url), "utf8"),
     readFile(new URL("../db/schema.ts", import.meta.url), "utf8"),
   ]);
@@ -54,6 +56,11 @@ test("includes the editable content system and storage bindings", async () => {
   assert.match(admin, /保存这个项目/);
   assert.match(admin, /确认删除/);
   assert.match(contentRoute, /export async function PUT/);
+  assert.match(contentRoute, /isAdminRequest/);
+  assert.match(uploadRoute, /isAdminRequest/);
+  assert.match(adminAuth, /ADMIN_EMAIL/);
+  assert.match(adminAuth, /cf-access-jwt-assertion/);
+  assert.match(adminAuth, /cf-access-authenticated-user-email/);
   assert.match(hosting, /"d1": "DB"/);
   assert.match(hosting, /"r2": "MEDIA"/);
   assert.match(schema, /site_content/);

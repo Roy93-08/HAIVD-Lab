@@ -1,14 +1,12 @@
-import { headers } from "next/headers";
-import { getChatGPTUser, requireChatGPTUser } from "../chatgpt-auth";
+import { getAdminIdentity } from "../../lib/admin-auth";
 import AdminClient from "./AdminClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("host") ?? "";
-  const local = host.startsWith("localhost:") || host.startsWith("127.0.0.1:");
-  const user = await getChatGPTUser();
-  if (!user && !local) await requireChatGPTUser("/admin");
-  return <AdminClient userName={user?.displayName ?? "本地管理员"} />;
+  const admin = await getAdminIdentity();
+  if (!admin) {
+    return <main className="admin-access-denied"><div><p className="eyebrow">ADMIN ACCESS</p><h1>Access restricted</h1><p>Please sign in through the laboratory&apos;s Cloudflare Access page with the authorized administrator email.</p><a href="/">Return to website</a></div></main>;
+  }
+  return <AdminClient userName={admin.displayName} />;
 }
