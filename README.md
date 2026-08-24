@@ -55,3 +55,11 @@ The public site and content management system share one domain. The administrati
 - Cloudflare D1 for site content
 - Cloudflare R2 for uploaded media
 - Drizzle ORM
+
+## Production
+
+- Public site: `https://haidelab.org`
+- Administrator: `https://haidelab.org/admin`
+- Cloudflare Worker: `haide-lab`
+- D1 database: `haide-lab-db`
+- R2 media bucket: `haide-lab-media`

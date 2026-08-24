@@ -3,23 +3,29 @@ import vinext from "vinext";
 import { defineConfig } from "vite";
 import hostingConfig from "./.openai/hosting.json";
 
-const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
-  "00000000-0000-4000-8000-000000000000";
-
 const { d1, r2 } = hostingConfig;
 
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 
 const localBindingConfig = {
+  name: "haide-lab",
   main: "./worker/index.ts",
   compatibility_flags: ["nodejs_compat"],
+  workers_dev: false,
+  routes: [
+    { pattern: "haidelab.org", custom_domain: true },
+    { pattern: "www.haidelab.org", custom_domain: true },
+  ],
+  vars: {
+    ADMIN_EMAIL: "108913383@qq.com",
+  },
   d1_databases: d1
     ? [
         {
           binding: d1,
-          database_name: "site-creator-d1",
-          database_id: SITE_CREATOR_PLACEHOLDER_DATABASE_ID,
+          database_name: "haide-lab-db",
+          database_id: "cac98417-5b46-46cc-a293-a8b5a19fd861",
         },
       ]
     : [],
@@ -27,7 +33,7 @@ const localBindingConfig = {
     ? [
         {
           binding: r2,
-          bucket_name: "site-creator-r2",
+          bucket_name: "haide-lab-media",
         },
       ]
     : [],
