@@ -24,6 +24,7 @@ export type ProjectItem = {
   profileImage: string;
   status: "进行中" | "已完成";
   paperLinks: PaperLink[];
+  researchOutputs?: string[];
 };
 
 export type SiteContent = {
@@ -35,6 +36,10 @@ export type SiteContent = {
 
 export function sortNewsByDate(news: NewsItem[]): NewsItem[] {
   return [...news].sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export function sortProjectsByDate(projects: ProjectItem[]): ProjectItem[] {
+  return [...projects].sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export const defaultContent: SiteContent = {

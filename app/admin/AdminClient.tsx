@@ -194,7 +194,7 @@ export default function AdminClient({ userName }: { userName: string }) {
           </details>)}
         </div>}
         {tab === "projects" && <div className="editor-list">
-          <div className="editor-intro"><p>项目会按当前顺序在前台每排四张展示，可持续向下增加。</p><button className="secondary-button" onClick={() => setContent((c) => ({ ...c, projects: [...c.projects, { id: uid("project"), title: "新研究项目", date: new Date().toISOString().slice(0,10), image: "", summary: "", body: "", contentBlocks: [], people: "", profileImage: "", status: "进行中", paperLinks: [] }] }))}>＋ 添加项目</button></div>
+          <div className="editor-intro"><p>项目会按日期从新到旧在前台每排四张展示，可持续向下增加。</p><button className="secondary-button" onClick={() => setContent((c) => ({ ...c, projects: [...c.projects, { id: uid("project"), title: "新研究项目", date: new Date().toISOString().slice(0,10), image: "", summary: "", body: "", contentBlocks: [], people: "", profileImage: "", status: "进行中", paperLinks: [], researchOutputs: [] }] }))}>＋ 添加项目</button></div>
           {content.projects.map((item, index) => <details className="editor-card" key={item.id} open={index === 0}>
             <summary><div><small>{item.status} · {item.date}</small><strong>{item.title}</strong></div><span>编辑</span></summary>
             <div className="editor-card-body">
@@ -202,7 +202,7 @@ export default function AdminClient({ userName }: { userName: string }) {
               <div className="form-grid two"><ImageField label="项目首图" value={item.image} onChange={(v) => patchProject(item.id, { image: v })} /><ImageField label="本人照片" value={item.profileImage} onChange={(v) => patchProject(item.id, { profileImage: v })} /></div>
               <Field label="卡片内容简述" value={item.summary} onChange={(v) => patchProject(item.id, { summary: v })} multiline />
               <ProjectContentEditor project={item} onChange={(patch) => patchProject(item.id, patch)} />
-              <Field label="论文 / 研究成果链接" value={item.paperLinks.map((l) => `${l.label} | ${l.url}`).join("\n")} onChange={(v) => patchProject(item.id, { paperLinks: v.split("\n").map((line) => { const [label, url] = line.split("|").map((part) => part.trim()); return { label, url }; }).filter((l) => l.label && l.url) })} multiline hint="每行一个，格式：链接名称 | https://...；为空时前台不显示“研究成果”。" />
+              <Field label="论文 / 研究成果" value={(item.researchOutputs ?? item.paperLinks.map((link) => `${link.label} | ${link.url}`)).join("\n")} onChange={(v) => patchProject(item.id, { researchOutputs: v.split("\n") })} multiline hint="每行一项，可输入论文名称、获奖信息、项目成果、网页地址或任意说明；内容会按原文展示，不要求固定格式。若使用“名称 | https://...”格式，前台会自动生成可点击链接。" />
               <div className="editor-actions"><div className="item-save-area"><button className="primary-button" disabled={itemSaving === item.id} onClick={() => saveItem("project", item.id)}>{itemSaving === item.id ? "保存中…" : itemNotice?.id === item.id && itemNotice.state === "success" ? "已保存 ✓" : "保存这个项目"}</button>{itemNotice?.id === item.id && <span className={`item-save-notice ${itemNotice.state}`} role="status">{itemNotice.message}</span>}</div><button className="danger-button" onClick={() => setDeleteTarget({ type: "project", id: item.id, title: item.title })}>删除这个项目</button></div>
             </div>
           </details>)}

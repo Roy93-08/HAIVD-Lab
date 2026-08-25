@@ -41,8 +41,12 @@ test("server-renders the public research lab homepage", async () => {
 });
 
 test("includes the editable content system, administrator protection, and storage bindings", async () => {
-  const [admin, contentRoute, uploadRoute, protectedContentRoute, protectedUploadRoute, adminAuth, hosting, schema] = await Promise.all([
+  const [admin, site, contactPage, contactView, contentModel, contentRoute, uploadRoute, protectedContentRoute, protectedUploadRoute, adminAuth, hosting, schema] = await Promise.all([
     readFile(new URL("../app/admin/AdminClient.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/LabSite.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/contact/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/contact/ContactClient.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/content.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/content/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/api/upload/route.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/admin/api/content/route.ts", import.meta.url), "utf8"),
@@ -56,7 +60,12 @@ test("includes the editable content system, administrator protection, and storag
   assert.match(admin, /添加项目/);
   assert.match(admin, /保存这条新闻/);
   assert.match(admin, /保存这个项目/);
+  assert.match(admin, /内容会按原文展示，不要求固定格式/);
   assert.match(admin, /确认删除/);
+  assert.match(site, /sortProjectsByDate\(content\.projects\)/);
+  assert.match(contentModel, /function sortProjectsByDate/);
+  assert.match(contactPage, /await readContent\(\)/);
+  assert.doesNotMatch(contactView, /useEffect|fetch\("\/api\/content"\)/);
   assert.match(contentRoute, /export async function PUT/);
   assert.match(contentRoute, /isAdminRequest/);
   assert.match(uploadRoute, /isAdminRequest/);
