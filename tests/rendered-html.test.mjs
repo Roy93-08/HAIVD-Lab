@@ -34,6 +34,7 @@ test("server-renders the public research lab homepage", async () => {
   assert.match(html, /alt="About the lab"/);
   assert.match(html, /Designing and engineering better human-agent relationships/);
   assert.match(html, />NEWS</);
+  assert.match(html, />PAPERS</);
   assert.match(html, />PROJECTS</);
   assert.match(html, /Human–AI Co-Creation Tools/);
   assert.match(html, /og:image/);
@@ -57,13 +58,17 @@ test("includes the editable content system, administrator protection, and storag
   ]);
   assert.match(admin, /实验室介绍/);
   assert.match(admin, /添加新闻/);
+  assert.match(admin, /添加论文/);
   assert.match(admin, /添加项目/);
   assert.match(admin, /保存这条新闻/);
+  assert.match(admin, /保存这篇论文/);
   assert.match(admin, /保存这个项目/);
   assert.match(admin, /内容会按原文展示，不要求固定格式/);
   assert.match(admin, /确认删除/);
   assert.match(site, /sortProjectsByDate\(content\.projects\)/);
+  assert.match(site, /sortPapersByDate\(content\.papers\)/);
   assert.match(contentModel, /function sortProjectsByDate/);
+  assert.match(contentModel, /migrated\.papers \?\?= \[\]/);
   assert.match(contactPage, /await readContent\(\)/);
   assert.doesNotMatch(contactView, /useEffect|fetch\("\/api\/content"\)/);
   assert.match(contactView, /\/images\/tong-mu-contact\.jpg/);

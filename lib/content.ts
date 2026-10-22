@@ -6,6 +6,8 @@ export type NewsItem = {
   body: string;
 };
 
+export type PaperItem = NewsItem;
+
 export type PaperLink = { label: string; url: string };
 
 export type ProjectContentBlock =
@@ -30,12 +32,17 @@ export type ProjectItem = {
 export type SiteContent = {
   lab: { name: string; logoText: string; logoImage?: string; kicker: string; headline: string; description: string; image: string; imageFit?: "contain" | "cover"; imagePosition?: "center" | "top" | "bottom" | "left" | "right" };
   news: NewsItem[];
+  papers: PaperItem[];
   projects: ProjectItem[];
   contact: { title: string; body: string; name?: string; email: string };
 };
 
 export function sortNewsByDate(news: NewsItem[]): NewsItem[] {
   return [...news].sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export function sortPapersByDate(papers: PaperItem[]): PaperItem[] {
+  return [...papers].sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export function sortProjectsByDate(projects: ProjectItem[]): ProjectItem[] {
@@ -60,6 +67,7 @@ export const defaultContent: SiteContent = {
     { id: "news-3", date: "2026-05-22", title: "Lab Open Day: imagining the future of people and intelligent systems", people: "Zhou He, Wang An", body: "The open day will feature recent research prototypes and conversations about human–AI co-creation, embodied intelligence, and responsible AI design." },
     { id: "news-4", date: "2026-03-11", title: "New research project explores explainable everyday AI", people: "The lab team", body: "Our new project investigates how explanations, feedback, and user control can make everyday intelligent systems easier to understand and trust." },
   ],
+  papers: [],
   projects: [
     { id: "project-1", title: "Human–AI Co-Creation Tools", date: "2026-06-12", image: "https://images.unsplash.com/photo-1558655146-9f40138edfeb?auto=format&fit=crop&w=900&q=80", summary: "Exploring how generative AI can become a collaborator in the design process rather than merely an automation tool.", body: "This project studies the relationship between designers and generative AI. Through participatory research, interactive prototypes, and real design tasks, we investigate feedback and control mechanisms that preserve human creative agency.", people: "Chen Chen, Lin Yu, Zhao Ke", profileImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80", status: "进行中", paperLinks: [{ label: "Project paper", url: "https://dl.acm.org/" }] },
     { id: "project-2", title: "Explainable Everyday AI", date: "2026-04-03", image: "https://images.unsplash.com/photo-1535223289827-42f1e9919769?auto=format&fit=crop&w=900&q=80", summary: "Studying how people understand, control, and trust intelligent systems embedded in everyday life.", body: "Starting from users’ mental models, we explore how explanation, correction, and feedback should appear in intelligent products so that non-technical users can understand system behavior and retain final control.", people: "Zhou He, Wang An", profileImage: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80", status: "进行中", paperLinks: [] },
@@ -76,6 +84,8 @@ export const defaultContent: SiteContent = {
 
 export function migrateLegacyContent(content: SiteContent): SiteContent {
   const migrated: SiteContent = JSON.parse(JSON.stringify(content));
+
+  migrated.papers ??= [];
 
   if (migrated.lab.headline === "我们设计人与智能系统共同生活、学习与创造的方式。") {
     migrated.lab.headline = defaultContent.lab.headline;
@@ -118,5 +128,5 @@ export function migrateLegacyContent(content: SiteContent): SiteContent {
 export function isSiteContent(value: unknown): value is SiteContent {
   if (!value || typeof value !== "object") return false;
   const item = value as Partial<SiteContent>;
-  return Boolean(item.lab && Array.isArray(item.news) && Array.isArray(item.projects) && item.contact);
+  return Boolean(item.lab && Array.isArray(item.news) && (item.papers === undefined || Array.isArray(item.papers)) && Array.isArray(item.projects) && item.contact);
 }

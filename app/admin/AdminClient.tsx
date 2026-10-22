@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { defaultContent, sortNewsByDate, type NewsItem, type ProjectContentBlock, type ProjectItem, type SiteContent } from "../../lib/content";
+import { defaultContent, sortNewsByDate, sortPapersByDate, type NewsItem, type PaperItem, type ProjectContentBlock, type ProjectItem, type SiteContent } from "../../lib/content";
 
-type Tab = "lab" | "news" | "projects" | "contact";
-type DeleteTarget = { type: "news" | "project"; id: string; title: string };
+type Tab = "lab" | "news" | "papers" | "projects" | "contact";
+type DeleteTarget = { type: "news" | "paper" | "project"; id: string; title: string };
 type ItemNotice = { id: string; state: "saving" | "success" | "error"; message: string };
-const tabs: { id: Tab; label: string }[] = [{ id: "lab", label: "实验室介绍" }, { id: "news", label: "新闻" }, { id: "projects", label: "研究项目" }, { id: "contact", label: "联系我们" }];
+const tabs: { id: Tab; label: string }[] = [{ id: "lab", label: "实验室介绍" }, { id: "news", label: "新闻" }, { id: "papers", label: "论文" }, { id: "projects", label: "研究项目" }, { id: "contact", label: "联系我们" }];
 const uid = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 function upsertItem<T extends { id: string }>(items: T[], item: T, position: "start" | "end") {
@@ -132,9 +132,10 @@ export default function AdminClient({ userName }: { userName: string }) {
   const patchLab = (key: keyof SiteContent["lab"], value: string) => setContent((c) => ({ ...c, lab: { ...c.lab, [key]: value } }));
   const patchContact = (key: keyof SiteContent["contact"], value: string) => setContent((c) => ({ ...c, contact: { ...c.contact, [key]: value } }));
   const patchNews = (id: string, patch: Partial<NewsItem>) => { setItemNotice((value) => value?.id === id ? null : value); setContent((c) => ({ ...c, news: c.news.map((item) => item.id === id ? { ...item, ...patch } : item) })); };
+  const patchPaper = (id: string, patch: Partial<PaperItem>) => { setItemNotice((value) => value?.id === id ? null : value); setContent((c) => ({ ...c, papers: c.papers.map((item) => item.id === id ? { ...item, ...patch } : item) })); };
   const patchProject = (id: string, patch: Partial<ProjectItem>) => { setItemNotice((value) => value?.id === id ? null : value); setContent((c) => ({ ...c, projects: c.projects.map((item) => item.id === id ? { ...item, ...patch } : item) })); };
   const save = async () => { setSaving(true); setNotice(""); const response = await publishContent(content); setSaving(false); setNotice(response.ok ? "所有更改已发布" : "保存失败，请稍后重试"); };
-  const saveItem = async (type: "news" | "project", id: string) => {
+  const saveItem = async (type: "news" | "paper" | "project", id: string) => {
     setItemSaving(id); setItemNotice({ id, state: "saving", message: "正在保存…" }); setNotice("");
     try {
       const currentResponse = await fetch("/admin/api/content");
@@ -142,10 +143,12 @@ export default function AdminClient({ userName }: { userName: string }) {
       const current = await currentResponse.json() as SiteContent;
       const next = type === "news"
         ? { ...current, news: upsertItem(current.news, content.news.find((item) => item.id === id)!, "start") }
-        : { ...current, projects: upsertItem(current.projects, content.projects.find((item) => item.id === id)!, "end") };
+        : type === "paper"
+          ? { ...current, papers: upsertItem(current.papers, content.papers.find((item) => item.id === id)!, "start") }
+          : { ...current, projects: upsertItem(current.projects, content.projects.find((item) => item.id === id)!, "end") };
       const response = await publishContent(next);
       if (!response.ok) throw new Error();
-      const message = type === "news" ? "这条新闻已发布" : "这个项目已发布";
+      const message = type === "news" ? "这条新闻已发布" : type === "paper" ? "这篇论文已发布" : "这个项目已发布";
       setItemNotice({ id, state: "success", message }); setNotice(message);
     } catch {
       setItemNotice({ id, state: "error", message: "保存失败，请重试" }); setNotice("保存失败，请稍后重试");
@@ -162,13 +165,17 @@ export default function AdminClient({ userName }: { userName: string }) {
       const current = await currentResponse.json() as SiteContent;
       const next = deleteTarget.type === "news"
         ? { ...current, news: current.news.filter((item) => item.id !== deleteTarget.id) }
-        : { ...current, projects: current.projects.filter((item) => item.id !== deleteTarget.id) };
+        : deleteTarget.type === "paper"
+          ? { ...current, papers: current.papers.filter((item) => item.id !== deleteTarget.id) }
+          : { ...current, projects: current.projects.filter((item) => item.id !== deleteTarget.id) };
       const response = await publishContent(next);
       if (!response.ok) throw new Error();
       setContent((value) => deleteTarget.type === "news"
         ? { ...value, news: value.news.filter((item) => item.id !== deleteTarget.id) }
-        : { ...value, projects: value.projects.filter((item) => item.id !== deleteTarget.id) });
-      setNotice(deleteTarget.type === "news" ? "新闻已删除" : "项目已删除");
+        : deleteTarget.type === "paper"
+          ? { ...value, papers: value.papers.filter((item) => item.id !== deleteTarget.id) }
+          : { ...value, projects: value.projects.filter((item) => item.id !== deleteTarget.id) });
+      setNotice(deleteTarget.type === "news" ? "新闻已删除" : deleteTarget.type === "paper" ? "论文已删除" : "项目已删除");
       setDeleteTarget(null);
     } catch {
       setNotice("删除失败，内容仍已保留");
@@ -193,6 +200,17 @@ export default function AdminClient({ userName }: { userName: string }) {
             </div>
           </details>)}
         </div>}
+        {tab === "papers" && <div className="editor-list">
+          <div className="editor-intro"><p>首页只展示日期最新的 4 篇论文，其余内容会保留在后台。</p><button className="secondary-button" onClick={() => setContent((c) => ({ ...c, papers: [{ id: uid("paper"), title: "新论文标题", date: new Date().toISOString().slice(0,10), people: "", body: "" }, ...c.papers] }))}>＋ 添加论文</button></div>
+          {sortPapersByDate(content.papers).map((item, index) => <details className="editor-card" key={item.id} open={index === 0}>
+            <summary><div><small>{item.date}</small><strong>{item.title}</strong></div><span>编辑</span></summary>
+            <div className="editor-card-body">
+              <div className="form-grid two"><Field label="标题" value={item.title} onChange={(v) => patchPaper(item.id, { title: v })} /><Field label="日期" value={item.date} onChange={(v) => patchPaper(item.id, { date: v })} /><Field label="相关者姓名" value={item.people} onChange={(v) => patchPaper(item.id, { people: v })} /></div>
+              <Field label="正文" value={item.body} onChange={(v) => patchPaper(item.id, { body: v })} multiline hint="与新闻保持一致，使用简洁的分段正文，便于统一展示和维护。" />
+              <div className="editor-actions"><div className="item-save-area"><button className="primary-button" disabled={itemSaving === item.id} onClick={() => saveItem("paper", item.id)}>{itemSaving === item.id ? "保存中…" : itemNotice?.id === item.id && itemNotice.state === "success" ? "已保存 ✓" : "保存这篇论文"}</button>{itemNotice?.id === item.id && <span className={`item-save-notice ${itemNotice.state}`} role="status">{itemNotice.message}</span>}</div><button className="danger-button" onClick={() => setDeleteTarget({ type: "paper", id: item.id, title: item.title })}>删除这篇论文</button></div>
+            </div>
+          </details>)}
+        </div>}
         {tab === "projects" && <div className="editor-list">
           <div className="editor-intro"><p>项目会按日期从新到旧在前台每排四张展示，可持续向下增加。</p><button className="secondary-button" onClick={() => setContent((c) => ({ ...c, projects: [...c.projects, { id: uid("project"), title: "新研究项目", date: new Date().toISOString().slice(0,10), image: "", summary: "", body: "", contentBlocks: [], people: "", profileImage: "", status: "进行中", paperLinks: [], researchOutputs: [] }] }))}>＋ 添加项目</button></div>
           {content.projects.map((item, index) => <details className="editor-card" key={item.id} open={index === 0}>
@@ -213,7 +231,7 @@ export default function AdminClient({ userName }: { userName: string }) {
     {deleteTarget && <div className="admin-confirm-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && !itemSaving && setDeleteTarget(null)}>
       <section className="admin-confirm-card" role="alertdialog" aria-modal="true" aria-labelledby="delete-confirm-title" aria-describedby="delete-confirm-description">
         <p className="eyebrow">安全确认</p>
-        <h2 id="delete-confirm-title">确认删除{deleteTarget.type === "news" ? "这条新闻" : "这个项目"}？</h2>
+        <h2 id="delete-confirm-title">确认删除{deleteTarget.type === "news" ? "这条新闻" : deleteTarget.type === "paper" ? "这篇论文" : "这个项目"}？</h2>
         <p id="delete-confirm-description">“{deleteTarget.title}”将从网站和后台中删除。此操作无法撤销。</p>
         <div className="admin-confirm-actions"><button className="secondary-button" disabled={Boolean(itemSaving)} onClick={() => setDeleteTarget(null)}>取消</button><button className="confirm-danger-button" disabled={Boolean(itemSaving)} onClick={confirmDelete}>{itemSaving ? "正在删除…" : "确认删除"}</button></div>
       </section>

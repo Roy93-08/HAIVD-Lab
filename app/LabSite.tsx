@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { sortNewsByDate, sortProjectsByDate, type NewsItem, type ProjectContentBlock, type ProjectItem, type SiteContent } from "../lib/content";
+import { sortNewsByDate, sortPapersByDate, sortProjectsByDate, type NewsItem, type PaperItem, type ProjectContentBlock, type ProjectItem, type SiteContent } from "../lib/content";
 
-type ModalState = { type: "news"; item: NewsItem } | { type: "project"; item: ProjectItem } | null;
+type ModalState = { type: "news"; item: NewsItem } | { type: "paper"; item: PaperItem } | { type: "project"; item: ProjectItem } | null;
 
 function formatDate(date: string) {
   return date.replaceAll("-", ".");
@@ -78,6 +78,15 @@ export default function LabSite({ initialContent }: { initialContent: SiteConten
         ))}</div>
       </section>
 
+      <section className="section news-section papers-section">
+        <div className="section-heading"><h2>PAPERS</h2></div>
+        <div className="news-list">{sortPapersByDate(content.papers).slice(0, 4).map((item) => (
+          <button className="news-row" key={item.id} type="button" onClick={() => setModal({ type: "paper", item })}>
+            <time>{formatDate(item.date)}</time><span>{item.title}</span><span aria-hidden="true">↗</span>
+          </button>
+        ))}</div>
+      </section>
+
       <section className="section projects-section" id="projects">
         <div className="section-heading projects-heading"><h2>PROJECTS</h2></div>
         <div className="project-grid">{sortProjectsByDate(content.projects).map((project) => (
@@ -91,8 +100,8 @@ export default function LabSite({ initialContent }: { initialContent: SiteConten
       {modal && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && setModal(null)}>
         <article className="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
           <button className="modal-close" type="button" onClick={() => setModal(null)} aria-label="Close dialog">×</button>
-          {modal.type === "news" ? <>
-            <p className="modal-kicker">NEWS · {formatDate(modal.item.date)}</p><h2 id="modal-title">{modal.item.title}</h2><p className="modal-people">People: {modal.item.people}</p><div className="modal-body">{modal.item.body}</div>
+          {modal.type !== "project" ? <>
+            <p className="modal-kicker">{modal.type === "news" ? "NEWS" : "PAPER"} · {formatDate(modal.item.date)}</p><h2 id="modal-title">{modal.item.title}</h2><p className="modal-people">People: {modal.item.people}</p><div className="modal-body">{modal.item.body}</div>
           </> : <>
             <img className="modal-cover" src={modal.item.image} alt="" />
             <div className="modal-meta"><span>{formatDate(modal.item.date)}</span><span className={`status ${modal.item.status === "已完成" ? "complete" : ""}`}>{statusLabel(modal.item.status)}</span></div>
