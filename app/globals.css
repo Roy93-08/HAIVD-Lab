@@ -123,6 +123,7 @@ h1 { max-width: 780px; margin: 0; font-size: clamp(42px, 5vw, 76px); line-height
 .public-site .section-heading h2 { font-family: Georgia, "Songti SC", "STSong", serif; font-size: 30px; font-weight: 500; }
 .public-site .news-section { grid-template-columns: 160px 1fr; gap: 42px; padding-top: 38px; padding-bottom: 40px; }
 .public-site .news-list { border-top: 0; }
+.public-site .papers-section .news-list { padding-top: 34px; }
 .public-site .news-row { grid-template-columns: 105px 1fr 18px; min-height: 42px; padding: 10px 0; border-bottom: 0; }
 .public-site .news-row:hover { background: #f7f7f4; }
 .public-site .news-row span:nth-child(2) { font-size: 14px; }

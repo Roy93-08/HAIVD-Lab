@@ -68,6 +68,8 @@ test("includes the editable content system, administrator protection, and storag
   assert.match(site, /sortProjectsByDate\(content\.projects\)/);
   assert.match(site, /sortPapersByDate\(content\.papers\)/);
   assert.match(contentModel, /function sortProjectsByDate/);
+  assert.match(contentModel, /function dateSortValue/);
+  assert.match(contentModel, /Date\.UTC/);
   assert.match(contentModel, /migrated\.papers \?\?= \[\]/);
   assert.match(contactPage, /await readContent\(\)/);
   assert.doesNotMatch(contactView, /useEffect|fetch\("\/api\/content"\)/);

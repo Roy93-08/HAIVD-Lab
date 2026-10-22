@@ -37,16 +37,23 @@ export type SiteContent = {
   contact: { title: string; body: string; name?: string; email: string };
 };
 
+function dateSortValue(value: string): number {
+  const parts = value.trim().match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+  if (parts) return Date.UTC(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]));
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed;
+}
+
 export function sortNewsByDate(news: NewsItem[]): NewsItem[] {
-  return [...news].sort((a, b) => b.date.localeCompare(a.date));
+  return [...news].sort((a, b) => dateSortValue(b.date) - dateSortValue(a.date));
 }
 
 export function sortPapersByDate(papers: PaperItem[]): PaperItem[] {
-  return [...papers].sort((a, b) => b.date.localeCompare(a.date));
+  return [...papers].sort((a, b) => dateSortValue(b.date) - dateSortValue(a.date));
 }
 
 export function sortProjectsByDate(projects: ProjectItem[]): ProjectItem[] {
-  return [...projects].sort((a, b) => b.date.localeCompare(a.date));
+  return [...projects].sort((a, b) => dateSortValue(b.date) - dateSortValue(a.date));
 }
 
 export const defaultContent: SiteContent = {
