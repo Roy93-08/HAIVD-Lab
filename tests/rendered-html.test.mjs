@@ -34,7 +34,7 @@ test("server-renders the public research lab homepage", async () => {
   assert.match(html, /alt="About the lab"/);
   assert.match(html, /Designing and engineering better human-agent relationships/);
   assert.match(html, />NEWS</);
-  assert.match(html, />PAPERS</);
+  assert.match(html, />PUBLICATIONS</);
   assert.match(html, />PROJECTS</);
   assert.match(html, /Human–AI Co-Creation Tools/);
   assert.match(html, /og:image/);
