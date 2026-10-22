@@ -66,6 +66,7 @@ test("includes the editable content system, administrator protection, and storag
   assert.match(contentModel, /function sortProjectsByDate/);
   assert.match(contactPage, /await readContent\(\)/);
   assert.doesNotMatch(contactView, /useEffect|fetch\("\/api\/content"\)/);
+  assert.match(contactView, /\/images\/tong-mu-contact\.jpg/);
   assert.match(contentRoute, /export async function PUT/);
   assert.match(contentRoute, /isAdminRequest/);
   assert.match(uploadRoute, /isAdminRequest/);
